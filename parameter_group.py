@@ -82,14 +82,17 @@ def read_csv(file_path):
     with open(file_path, mode='r') as csv_file:
         csv_reader = csv.DictReader(csv_file)
         line_count = 0
-        for row in csv_reader:
-            if line_count == 0:
-                logging.info(f'Column names are {", ".join(row)}')
-                line_count += 1
-            if row["Name"] != "":
-                data.update({row["Name"] : row["Values"]})
-            line_count += 1
-        logging.info(f'Processed {line_count} lines.')
+        try:
+            for row in csv_reader:
+                    if line_count == 0:
+                        logging.info(f'Column names are {", ".join(row)}')
+                        line_count += 1
+                    if row["Name"] != "":
+                        data.update({row["Name"] : row["Value"]})
+                    line_count += 1
+            logging.info(f'Processed {line_count} rows including header.')
+        except KeyError:
+            logging.info("Column names are not correct!")
         
 if __name__ == "__main__":
     read_csv(f'{source_parameter_group}')
