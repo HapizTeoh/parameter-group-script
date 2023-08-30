@@ -4,15 +4,19 @@ import boto3
 import pprint, logging
 import csv
 from botocore.exceptions import ClientError
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level='INFO')
 
 data = {}
 sheet_list = {}
-source_parameter_group = "payments-master-pg10"
-target_parameter_group = "fave-staging-main-pg-v11"
-parameter_group_family = "postgres"
-access_profile = "staging-admin"
+source_parameter_group = os.getenv("source_file")
+target_parameter_group = os.getenv("target_parameter_group")
+parameter_group_family = os.getenv("parameter_group_family")
+access_profile = os.getenv("aws_profile")
+found_flag = bool
 
 def init_aws_session():
     return boto3.setup_default_session(profile_name=f'{access_profile}')
@@ -88,12 +92,12 @@ def read_csv(file_path):
         logging.info(f'Processed {line_count} lines.')
         
 if __name__ == "__main__":
-    read_csv(f'{source_parameter_group}.csv')
+    read_csv(f'{source_parameter_group}')
     for key,value in data.items():
         logging.info(f'Parameter_name:{key}," values: "{value}')
         sheet_list.update( {key : value} )
     
-    init_aws_session()
+    session = init_aws_session()
     pg_groups = rds_get_parameter_group_list()
     #loop all parameter groups
     for x in pg_groups:                                                
@@ -101,6 +105,7 @@ if __name__ == "__main__":
         if parameter_group_family in x["DBParameterGroupFamily"]:
             if target_parameter_group in x["DBParameterGroupName"]:
                 logging.info("Target parameter group found: "+x["DBParameterGroupName"])
+                found_flag = True
                 #print the parameter group parameters
                 parameters = get_parameters(x["DBParameterGroupName"])
                 #print the parameters and values
@@ -117,3 +122,5 @@ if __name__ == "__main__":
                                     else:
                                         Parameters_args=[{'ParameterName': parameters_name,'ParameterValue': sheet_list[n],'ApplyMethod': 'immediate' }]
                                     #rds_update_parameters(target_parameter_group,Parameters_args)
+    if found_flag != True:
+        logging.info("Target parameter group not found!")

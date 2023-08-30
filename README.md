@@ -3,6 +3,17 @@ Will update the parameter group's parameter value according to a csv file.
 
 This script is used to update a new parameter group according to the old parameter group (.csv file).
 
+## What you need ?
+1. csv file with the last change
+2. AWS profile with the right permission to update the parameter group
+3. .env file with the following format
+```
+aws_profile = profile_name
+target_parameter_group = parameter_group_you_want_to_update
+parameter_group_family = postgres/mysql/oracle
+source_file = csv_file_name.csv
+```
+4. Install requirements.txt
 
 ## Program Flow
 This script will loop through a csv file, and list the content of each line in the csv.
