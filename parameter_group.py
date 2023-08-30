@@ -10,12 +10,14 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level='I
 data = {}
 sheet_list = {}
 source_parameter_group = "payments-master-pg10"
-target_parameter_group = "payments-master-pg11"
-access_profile = "prod-readonly"
+target_parameter_group = "fave-staging-main-pg-v11"
+parameter_group_family = "postgres"
+access_profile = "staging-admin"
 
 def init_aws_session():
     return boto3.setup_default_session(profile_name=f'{access_profile}')
 
+# Get all the parameter groups
 def rds_get_parameter_group_list():
     rds = boto3.client('rds')
     response = rds.describe_db_parameter_groups()
@@ -88,7 +90,7 @@ def read_csv(file_path):
 if __name__ == "__main__":
     read_csv(f'{source_parameter_group}.csv')
     for key,value in data.items():
-        print("Parameter_name: "+key," values: "+value)
+        logging.info(f'Parameter_name:{key}," values: "{value}')
         sheet_list.update( {key : value} )
     
     init_aws_session()
@@ -96,20 +98,22 @@ if __name__ == "__main__":
     #loop all parameter groups
     for x in pg_groups:                                                
         #print parameter groups that is in postgres family
-        if "postgres" in x["DBParameterGroupFamily"]:  
+        if parameter_group_family in x["DBParameterGroupFamily"]:
             if target_parameter_group in x["DBParameterGroupName"]:
-                #print the paramater group parameters
+                logging.info("Target parameter group found: "+x["DBParameterGroupName"])
+                #print the parameter group parameters
                 parameters = get_parameters(x["DBParameterGroupName"])
                 #print the parameters and values
-                for i in parameters:
-                    if i["ParameterName"] in sheet_list.keys():
-                        parameters_name = i["ParameterName"]
-                        parameters_apply_type = i["ApplyType"]
-                        for n in sheet_list:
-                            if parameters_name == n:
-                                print("\nParameter name from pg10: "+n,"\nParameter name from pg11: "+parameters_name,"\nValue to copy: "+sheet_list[n])
-                                if parameters_apply_type == "static":
-                                    Parameters_args=[{'ParameterName': parameters_name,'ParameterValue': sheet_list[n],'ApplyMethod': 'pending-reboot' }]
-                                else:
-                                    Parameters_args=[{'ParameterName': parameters_name,'ParameterValue': sheet_list[n],'ApplyMethod': 'immediate' }]
-                                rds_update_parameters(target_parameter_group,Parameters_args)
+                for  i in parameters:
+                        #Find the matching parameter group in source csv
+                        if i["ParameterName"] in sheet_list.keys():
+                            parameters_name = i["ParameterName"]
+                            parameters_apply_type = i["ApplyType"]
+                            for n in sheet_list:
+                                if parameters_name == n:     
+                                    print("\nParameter name from pg10: "+n,"\nParameter name from pg11: "+parameters_name,"\nValue to copy: "+sheet_list[n])
+                                    if parameters_apply_type == "static":
+                                        Parameters_args=[{'ParameterName': parameters_name,'ParameterValue': sheet_list[n],'ApplyMethod': 'pending-reboot' }]
+                                    else:
+                                        Parameters_args=[{'ParameterName': parameters_name,'ParameterValue': sheet_list[n],'ApplyMethod': 'immediate' }]
+                                    #rds_update_parameters(target_parameter_group,Parameters_args)
