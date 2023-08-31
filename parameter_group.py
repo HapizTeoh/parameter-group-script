@@ -16,6 +16,8 @@ source_parameter_group = os.getenv("source_file")
 target_parameter_group = os.getenv("target_parameter_group")
 parameter_group_family = os.getenv("parameter_group_family")
 access_profile = os.getenv("aws_profile")
+new_postgres_version = os.getenv("new_postgres_version")
+old_postgres_version = os.getenv("old_postgres_version")
 found_flag = False
 
 def init_aws_session():
@@ -119,8 +121,9 @@ if __name__ == "__main__":
                         parameters_apply_type = i["ApplyType"]
                         for key,value in sheet_list.items():
                             if parameters_name == key:
-                                print("\nParameter name from pg10: "+key,"\nParameter name from pg11: "
-                                      +parameters_name,"\nValue to copy: "+value)
+                                print("\nParameter name from pg %s: %s" %(old_postgres_version,key))
+                                print("Parameter name from pg %s: %s" %(new_postgres_version,parameters_name))
+                                print("Value to copy: %s" % value)
                                 if parameters_apply_type == "static":
                                     Parameters_args=[{'ParameterName': parameters_name,
                                                       'ParameterValue': value,'ApplyMethod': 'pending-reboot' }]
