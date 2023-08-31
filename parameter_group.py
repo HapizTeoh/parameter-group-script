@@ -121,9 +121,9 @@ if __name__ == "__main__":
                         parameters_apply_type = i["ApplyType"]
                         for key,value in sheet_list.items():
                             if parameters_name == key:
-                                print("\nParameter name from pg %s: %s" %(old_postgres_version,key))
-                                print("Parameter name from pg %s: %s" %(new_postgres_version,parameters_name))
-                                print("Value to copy: %s" % value)
+                                print(f"\nParameter name from pg {old_postgres_version}: {key}")
+                                print(f"Parameter name from pg {new_postgres_version}: {parameters_name}")
+                                print(f"Value to copy: {value}")
                                 if parameters_apply_type == "static":
                                     Parameters_args=[{'ParameterName': parameters_name,
                                                       'ParameterValue': value,'ApplyMethod': 'pending-reboot' }]
