@@ -1,7 +1,6 @@
 import os
 import logging
 import csv
-from urllib import response
 import boto3
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
@@ -130,6 +129,15 @@ if __name__ == "__main__":
                                 else:
                                     Parameters_args=[{'ParameterName': parameters_name,
                                                       'ParameterValue': value,'ApplyMethod': 'immediate' }]
-                                rds_update_parameters(target_parameter_group,Parameters_args)
+                                try:
+                                    rds_update_parameters(target_parameter_group,Parameters_args)
+                                    logging.info("Updated parameter %s", parameters_name)
+                                except ClientError as err:
+                                    logging.error(
+                                        "Couldn't update parameters in %s. Here's why: %s: %s", target_parameter_group,
+                                        err.response['Error']['Code'], err.response['Error']['Message'])
+                                    raise
     if found_flag is not True:
         logging.info("Target parameter group not found!\n")
+    else:
+        logging.info("Updated parameters in target parameter group!\n")
