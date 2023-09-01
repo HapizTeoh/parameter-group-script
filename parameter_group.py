@@ -140,4 +140,4 @@ if __name__ == "__main__":
     if found_flag is not True:
         logging.info("Target parameter group not found!\n")
     else:
-        logging.info("Updated parameters in target parameter group!\n")
+        logging.info("Succesfully updated all the specified parameters in %s!", target_parameter_group)
