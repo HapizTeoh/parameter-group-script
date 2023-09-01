@@ -130,6 +130,6 @@ if __name__ == "__main__":
                                 else:
                                     Parameters_args=[{'ParameterName': parameters_name,
                                                       'ParameterValue': value,'ApplyMethod': 'immediate' }]
-                                #rds_update_parameters(target_parameter_group,Parameters_args)
+                                rds_update_parameters(target_parameter_group,Parameters_args)
     if found_flag is not True:
         logging.info("Target parameter group not found!\n")

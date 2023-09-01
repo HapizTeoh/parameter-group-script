@@ -12,6 +12,8 @@ aws_profile = profile_name
 target_parameter_group = parameter_group_you_want_to_update
 parameter_group_family = postgres/mysql/oracle
 source_file = csv_file_name.csv
+new_postgres_version = 12
+old_postgres_version = 11
 ```
 4. Install requirements.txt
 
