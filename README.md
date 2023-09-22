@@ -31,3 +31,11 @@ Then it will compare with the parameter group list from the source csv file.
 If the parameter_value apply_type is static, then the apply method will be "pending-reboot". If its dynamic, then the apply method will be "immediate".
 
 Then it will update the parameter group according to the parameter value in the csv file.
+
+## Downloading a csv from Google Sheet (specific sheet)
+
+https://stackoverflow.com/questions/27000699/google-spreadsheet-direct-download-link-for-only-one-sheet-as-excel
+
+```
+https://docs.google.com/spreadsheets/d/<KEY>/export?format=xlsx&gid=<GID>
+```
